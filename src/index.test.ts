@@ -16,6 +16,8 @@ vi.mock("@libsql/client", () => {
   };
 });
 
+global.console.log = vi.fn();
+
 test("should execute plugins before and after query execution", async () => {
   const client = createClient({ url: "libsql://test-db" });
   const beforeExecuteMock = vi.fn((query) => query);
@@ -36,4 +38,36 @@ test("should execute plugins before and after query execution", async () => {
   expect(afterExecuteMock).toHaveBeenCalled();
 
   expect(result.rows).toEqual([{ id: 1, name: "Test User" }]);
+});
+
+test("should log before and after executing a query", async () => {
+  const client = createClient({ url: "libsql://test-db" });
+
+  const logBeforePlugin: LibSQLPlugin = {
+    beforeExecute: (query) => {
+      console.log(`Before executing: ${query}`);
+
+      return query;
+    },
+  };
+
+  const logAfterPlugin: LibSQLPlugin = {
+    afterExecute: (result) => {
+      console.log("After executing");
+      return result;
+    },
+  };
+
+  const enhancedClient = withLibsqlHooks(client, [
+    logBeforePlugin,
+    logAfterPlugin,
+  ]);
+
+  await enhancedClient.execute("SELECT * FROM users");
+
+  expect(console.log).toHaveBeenCalledWith(
+    "Before executing: SELECT * FROM users"
+  );
+
+  expect(console.log).toHaveBeenCalledWith("After executing");
 });
