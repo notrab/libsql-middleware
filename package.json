@@ -1,0 +1,76 @@
+{
+  "name": "libsql-client-hooks",
+  "description": "Before and after execute hooks for libSQL.",
+  "version": "0.0.0-development",
+  "license": "MIT",
+  "repository": "notrab/libsql-client-hooks",
+  "keywords": [
+    "turso",
+    "tursodatabase",
+    "sqlite",
+    "libsql",
+    "hooks"
+  ],
+  "contributors": [
+    "Jamie Barton <jamie@notrab.dev>"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch --clean=false",
+    "test": "vitest",
+    "test:watch": "vitest watch",
+    "semantic-release": "semantic-release"
+  },
+  "devDependencies": {
+    "@libsql/client": "^0.4.3",
+    "@types/node": "^20.10.5",
+    "semantic-release": "23.0.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.2",
+    "vitest": "^1.0.4"
+  },
+  "peerDependencies": {
+    "@libsql/client": "^0.4.3"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "splitting": true,
+    "sourcemap": true,
+    "clean": true,
+    "dts": true,
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "skipNodeModulesBundle": true,
+    "externals": [
+      "node_modules"
+    ]
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": {
+        "node": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "node": "./dist/index.cjs",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
