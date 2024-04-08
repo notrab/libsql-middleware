@@ -19,7 +19,7 @@ const logBeforePlugin: LibSQLPlugin = {
 };
 
 const logAfterPlugin: LibSQLPlugin = {
-  afterExecute: (result) => {
+  afterExecute: (result, query) => {
     console.log("After executing");
     return result;
   },
