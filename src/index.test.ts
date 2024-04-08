@@ -1,6 +1,8 @@
 import { vi, test, expect } from "vitest";
-import { createClient } from "@libsql/client";
-import { LibSQLPlugin, withLibsqlHooks } from ".";
+import { InStatement, createClient } from "@libsql/client";
+import { performance } from "perf_hooks";
+
+import { LibSQLPlugin, withLibsqlHooks, beforeExecute, afterExecute } from ".";
 
 vi.mock("@libsql/client", () => {
   const mockExecute = vi.fn(async (stmt: string) => ({
@@ -70,4 +72,129 @@ test("should log before and after executing a query", async () => {
   );
 
   expect(console.log).toHaveBeenCalledWith("After executing");
+});
+
+test("afterExecute plugin returns result and query in that order", async () => {
+  const client = createClient({ url: "libsql://test-db" });
+
+  const resultToReturn = {
+    columns: ["id", "name"],
+    rows: [{ id: 1, name: "Test User" }],
+    rowsAffected: 1,
+  };
+
+  const myPlugin: LibSQLPlugin = {
+    afterExecute: (result, query) => {
+      expect(result).toEqual(resultToReturn);
+      expect(query).toEqual("SELECT * FROM users");
+      return result;
+    },
+  };
+
+  const clientWithHooks = withLibsqlHooks(client, [myPlugin]);
+
+  const query = "SELECT * FROM users";
+  const result = await clientWithHooks.execute(query);
+
+  expect(result).toEqual(resultToReturn);
+});
+
+test("beforeExecute and afterExecute plugins work correctly", async () => {
+  const client = createClient({ url: "libsql://test-db" });
+
+  const beforePlugin: LibSQLPlugin = beforeExecute(async (query) => {
+    console.log("Modifying query before execution");
+    return query;
+  });
+
+  const afterPlugin: LibSQLPlugin = afterExecute(async (result) => {
+    console.log("Modifying result after execution");
+    return result;
+  });
+
+  const clientWithHooks = withLibsqlHooks(client, [beforePlugin, afterPlugin]);
+
+  const query = "SELECT * FROM users";
+
+  await clientWithHooks.execute(query);
+
+  expect(console.log).toHaveBeenCalledWith("Modifying query before execution");
+  expect(console.log).toHaveBeenCalledWith("Modifying result after execution");
+});
+
+const measureExecutionTime = (fn: () => void): number => {
+  const startTime = performance.now();
+  fn();
+  const endTime = performance.now();
+  return endTime - startTime;
+};
+
+test("Benchmark operations and plugins", async ({ expect }) => {
+  const client = createClient({ url: "file:dev.db" });
+
+  const logBeforePlugin: LibSQLPlugin = {
+    beforeExecute: async (query) => {
+      console.log(`Before executing: ${query}`);
+      // Simulate an async operation
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return query;
+    },
+  };
+
+  const logAfterPlugin: LibSQLPlugin = {
+    afterExecute: async (result, query) => {
+      console.log("After executing");
+      // Simulate an async operation
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      return result;
+    },
+  };
+
+  const enhancedClient = withLibsqlHooks(client, [
+    logBeforePlugin,
+    logAfterPlugin,
+  ]);
+
+  const queryToExecute = "SELECT * FROM users";
+
+  const executionTimeWithPlugins = measureExecutionTime(() =>
+    enhancedClient.execute(queryToExecute)
+  );
+
+  const executionTimeWithoutPlugins = measureExecutionTime(() =>
+    client.execute(queryToExecute)
+  );
+
+  expect(executionTimeWithPlugins).toBeGreaterThan(executionTimeWithoutPlugins);
+});
+
+function isInsertForUsersTable(query: InStatement | string) {
+  const insertRegex = /^INSERT\s+INTO\s+users\s+/i;
+  return insertRegex.test(typeof query === "string" ? query : query.sql);
+}
+
+test("Before hook checks if the query is an INSERT for the users table", async () => {
+  const client = createClient({ url: "libsql://test-db" });
+
+  const afterPlugin = afterExecute((result, query) => {
+    if (!isInsertForUsersTable(query)) {
+      return result;
+    }
+
+    console.log("Executing INSERT for the users table");
+
+    return result;
+  });
+
+  const clientWithHooks = withLibsqlHooks(client, [afterPlugin]);
+
+  const insertQuery = "INSERT INTO users (name, age) VALUES ('John Doe', 30)";
+  await clientWithHooks.execute(insertQuery);
+
+  const selectQuery = "SELECT * FROM products";
+  await clientWithHooks.execute(selectQuery);
+
+  expect(console.log).toHaveBeenCalledWith(
+    "Executing INSERT for the users table"
+  );
 });

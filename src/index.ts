@@ -46,3 +46,22 @@ export function withLibsqlHooks(
 
   return client;
 }
+
+export function beforeExecute(
+  handler: (
+    query: InStatement,
+    client: Client
+  ) => Promise<InStatement> | InStatement
+): LibSQLPlugin {
+  return { beforeExecute: handler };
+}
+
+export function afterExecute(
+  handler: (
+    result: ResultSet,
+    query: InStatement,
+    client: Client
+  ) => Promise<ResultSet> | ResultSet
+): LibSQLPlugin {
+  return { afterExecute: handler };
+}
