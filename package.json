@@ -22,7 +22,7 @@
     "semantic-release": "semantic-release"
   },
   "devDependencies": {
-    "@libsql/client": "^0.4.3",
+    "@libsql/client": "^0.6.0",
     "@types/node": "^20.10.5",
     "semantic-release": "23.0.0",
     "tsup": "^8.0.1",
