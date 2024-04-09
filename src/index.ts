@@ -1,4 +1,4 @@
-import type { Client, InStatement, ResultSet } from "@libsql/client";
+import type { Client, InStatement, ResultSet } from "@libsql/core/api";
 
 export interface LibSQLPlugin {
   beforeExecute?: (
