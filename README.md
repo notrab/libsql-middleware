@@ -1,60 +1,97 @@
 # libsql-client-hooks
 
+The middleware wrapper for `@libsql/client`.
+
 ![NPM](https://img.shields.io/npm/v/libsql-client-hooks)
 
-DO NOT USE. Concept example.
+## Install
 
-## Usage
+```bash
+npm install libsql-client-hooks
+```
+
+Make sure to install `@libsql/client` if you don't already have it.
+
+## Quickstart
 
 ```ts
 import { createClient } from "@libsql/client";
-import {
-  type LibSQLPlugin,
-  withLibsqlHooks,
-  beforeExecute,
-  afterExecute,
-} from "libsql-client-hooks";
+import { beforeExecute, withLibsqlHooks } from "libsql-client-hooks";
 
 const client = createClient({ url: "file:dev.db" });
 
-const plugins: LibSQLPlugin = {
-  beforeExecute: (query) => {
-    console.log(`Before executing: ${query}`);
-    return query;
-  },
-  afterExecute: (result, query) => {
-    console.log("After executing");
-    return result;
-  },
-};
-
-// Shorter variants
 const logBeforeExecute = beforeExecute((query) => {
   console.log("Before executing");
-  return result;
+  return query;
 });
 
-// Real world example
-function isInsertForUsersTable(query: InStatement | string) {
-  const insertRegex = /^INSERT\s+INTO\s+users\s+/i;
-  return insertRegex.test(typeof query === "string" ? query : query.sql);
-}
+const clientWithHooks = withLibsqlHooks(client, [logBeforeExecute]);
 
-const sendWelcomeEmail = beforeExecute((result, query) => {
-  if (!isInsertForUsersTable(query)) {
-    return result;
-  }
+await clientWithHooks.execute(
+  "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"
+);
+await clientWithHooks.execute("INSERT INTO users (name) VALUES ('Test User')");
+await clientWithHooks.execute("SELECT * FROM users");
+```
 
-  // await addJobToQueue(result, query)
+## API Reference
 
+### `beforeExecute`
+
+```ts
+import { beforeExecute } from "libsql-client-hooks";
+
+const logBeforeExecute = beforeExecute((query) => {
+  // Do something
+  return query;
+});
+```
+
+### `afterExecute`
+
+```ts
+import { afterExecute } from "libsql-client-hooks";
+
+const logAfterExecute = afterExecute((result, query) => {
+  // Do something
   return result;
 });
+```
 
-const enhancedClient = withLibsqlHooks(client, [
-  plugins,
-  sendWelcomeEmail,
-  logBeforeExecute,
+### `beforeBatch`
+
+```ts
+import { beforeBatch } from "libsql-client-hooks";
+
+const logBeforeBatch = beforeBatch((stmts) => {
+  // Do something
+  return stmts;
+});
+```
+
+### `afterBatch`
+
+```ts
+import { afterBatch } from "libsql-client-hooks";
+
+const logAfterBatch = afterBatch((results, stmts) => {
+  // Do something
+  return results;
+});
+```
+
+### `withLibsqlHooks`
+
+```ts
+import { withLibsqlHooks } from "libsql-client-hooks";
+
+const clientWithHooks = withLibsqlHooks(client, [
+  // Your plugins
 ]);
 
-await enhancedClient.execute("SELECT * FROM users");
+// Use the `@libsql/client` as you normally would
+// But now with middleware!
+await clientWithHooks.execute();
+await clientWithHooks.batch();
+await clientWithHooks.transaction();
 ```
