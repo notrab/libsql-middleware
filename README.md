@@ -4,7 +4,7 @@ The middleware wrapper for `@libsql/client`.
 
 ![NPM](https://img.shields.io/npm/v/libsql-client-hooks)
 
-## Install
+## Install
 
 ```bash
 npm install libsql-client-hooks
@@ -81,6 +81,8 @@ const logAfterBatch = afterBatch((results, stmts) => {
 ```
 
 ### `withLibsqlHooks`
+
+The `withLibsqlHooks` method binds the original `@libsql/client` methods so you can use them as you normally would, but now with middleware.
 
 ```ts
 import { withLibsqlHooks } from "libsql-client-hooks";
