@@ -10,6 +10,15 @@ export interface LibSQLPlugin {
     query: InStatement,
     client: Client
   ) => Promise<ResultSet> | ResultSet;
+  beforeBatch?: (
+    stmts: InStatement[],
+    client: Client
+  ) => Promise<InStatement[]> | InStatement[];
+  afterBatch?: (
+    results: ResultSet[],
+    stmts: InStatement[],
+    client: Client
+  ) => Promise<ResultSet[]> | ResultSet[];
 }
 
 export function withLibsqlHooks(
@@ -17,6 +26,7 @@ export function withLibsqlHooks(
   plugins: LibSQLPlugin[]
 ): Client {
   const originalExecute = client.execute.bind(client);
+  const originalBatch = client.batch.bind(client);
 
   client.execute = async (stmt: InStatement): Promise<ResultSet> => {
     let modifiedStmt = stmt;
@@ -44,6 +54,26 @@ export function withLibsqlHooks(
     return modifiedResult;
   };
 
+  client.batch = async (stmts: InStatement[]): Promise<ResultSet[]> => {
+    let modifiedStmts = stmts;
+
+    for (const plugin of plugins) {
+      if (plugin.beforeBatch) {
+        modifiedStmts = await plugin.beforeBatch(modifiedStmts, client);
+      }
+    }
+
+    const results = await originalBatch(modifiedStmts);
+
+    for (const plugin of plugins) {
+      if (plugin.afterBatch) {
+        await plugin.afterBatch(results, modifiedStmts, client);
+      }
+    }
+
+    return results;
+  };
+
   return client;
 }
 
@@ -64,4 +94,23 @@ export function afterExecute(
   ) => Promise<ResultSet> | ResultSet
 ): LibSQLPlugin {
   return { afterExecute: handler };
+}
+
+export function beforeBatch(
+  handler: (
+    stmts: InStatement[],
+    client: Client
+  ) => Promise<InStatement[]> | InStatement[]
+): LibSQLPlugin {
+  return { beforeBatch: handler };
+}
+
+export function afterBatch(
+  handler: (
+    esults: ResultSet[],
+    stmts: InStatement[],
+    client: Client
+  ) => Promise<ResultSet[]> | ResultSet[]
+): LibSQLPlugin {
+  return { afterBatch: handler };
 }

@@ -2,7 +2,13 @@ import { vi, test, expect } from "vitest";
 import { InStatement, createClient } from "@libsql/client";
 import { performance } from "perf_hooks";
 
-import { LibSQLPlugin, withLibsqlHooks, beforeExecute, afterExecute } from ".";
+import {
+  LibSQLPlugin,
+  withLibsqlHooks,
+  beforeExecute,
+  afterExecute,
+  beforeBatch,
+} from ".";
 
 vi.mock("@libsql/client", () => {
   const mockExecute = vi.fn(async (stmt: string) => ({
@@ -11,9 +17,20 @@ vi.mock("@libsql/client", () => {
     rowsAffected: 1,
   }));
 
+  const mockBatch = vi.fn(async (stmts: string[]) => {
+    const results = stmts.map((stmt) => ({
+      rows: [{ id: 1, name: "Test User" }],
+      columns: ["id", "name"],
+      rowsAffected: 1,
+    }));
+
+    return results;
+  });
+
   return {
     createClient: vi.fn(() => ({
       execute: mockExecute,
+      batch: mockBatch,
     })),
   };
 });
@@ -197,4 +214,39 @@ test("Before hook checks if the query is an INSERT for the users table", async (
   expect(console.log).toHaveBeenCalledWith(
     "Executing INSERT for the users table"
   );
+});
+
+test("should execute beforeBatch hook for batch commands", async () => {
+  const beforeBatchPlugin = beforeBatch((stmts) => {
+    stmts.map((stmt) => {
+      if (typeof stmt === "string") {
+        console.log(stmt.toUpperCase());
+      } else {
+        console.log({ ...stmt, sql: stmt.sql.toUpperCase() });
+      }
+    });
+
+    return stmts;
+  });
+
+  const client = createClient({ url: "libsql://test-db" });
+  const clientWithHooks = await withLibsqlHooks(client, [beforeBatchPlugin]);
+
+  const stmts = [
+    { sql: "SELECT * FROM table1", args: {} },
+    { sql: "SELECT * FROM table2", args: {} },
+  ];
+
+  await clientWithHooks.batch(stmts);
+
+  stmts.forEach((stmt) => {
+    if (typeof stmt === "string") {
+      expect(console.log).toHaveBeenCalledWith((stmt as string).toUpperCase());
+    } else {
+      expect(console.log).toHaveBeenCalledWith({
+        ...stmt,
+        sql: stmt.sql.toUpperCase(),
+      });
+    }
+  });
 });
