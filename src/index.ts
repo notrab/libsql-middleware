@@ -114,3 +114,14 @@ export function afterBatch(
 ): LibSQLPlugin {
   return { afterBatch: handler };
 }
+
+export function getActionFromSql(sql: string): string {
+  const trimmedSql = sql.trim().toUpperCase();
+
+  const actionRegex =
+    /^(CREATE TABLE|DROP TABLE|INSERT|SELECT|UPDATE|UPSERT|DELETE)\b/;
+
+  const match = trimmedSql.match(actionRegex);
+
+  return match ? match[1] : "Unknown";
+}

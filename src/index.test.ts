@@ -8,17 +8,18 @@ import {
   beforeExecute,
   afterExecute,
   beforeBatch,
+  getActionFromSql,
 } from ".";
 
 vi.mock("@libsql/client", () => {
-  const mockExecute = vi.fn(async (stmt: string) => ({
+  const mockExecute = vi.fn(async () => ({
     rows: [{ id: 1, name: "Test User" }],
     columns: ["id", "name"],
     rowsAffected: 1,
   }));
 
   const mockBatch = vi.fn(async (stmts: string[]) => {
-    const results = stmts.map((stmt) => ({
+    const results = stmts.map(() => ({
       rows: [{ id: 1, name: "Test User" }],
       columns: ["id", "name"],
       rowsAffected: 1,
@@ -249,4 +250,32 @@ test("should execute beforeBatch hook for batch commands", async () => {
       });
     }
   });
+});
+
+test("getActionFromSql", () => {
+  expect(getActionFromSql("SELECT * FROM users")).toBe("SELECT");
+
+  expect(
+    getActionFromSql(
+      'INSERT INTO products (name, price) VALUES ("Product A", 100)'
+    )
+  ).toBe("INSERT");
+
+  expect(
+    getActionFromSql(
+      'UPDATE employees SET salary = 50000 WHERE department = "HR"'
+    )
+  ).toBe("UPDATE");
+
+  expect(
+    getActionFromSql('DELETE FROM orders WHERE status = "Cancelled"')
+  ).toBe("DELETE");
+
+  expect(getActionFromSql("CREATE TABLE customers (id INT, name TEXT)")).toBe(
+    "CREATE TABLE"
+  );
+
+  expect(getActionFromSql("DROP TABLE products")).toBe("DROP TABLE");
+
+  expect(getActionFromSql("INVALID SQL STATEMENT")).toBe("Unknown");
 });
