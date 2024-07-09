@@ -31,7 +31,7 @@
     "vitest": "^2.0.1"
   },
   "peerDependencies": {
-    "@libsql/client": "^0.6.0"
+    "@libsql/client": "^0.7.0"
   },
   "tsup": {
     "entry": [

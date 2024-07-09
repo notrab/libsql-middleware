@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@libsql/client':
-    specifier: ^0.6.0
-    version: 0.6.0
+    specifier: ^0.7.0
+    version: 0.7.0
 
 devDependencies:
   '@libsql/core':
@@ -328,29 +328,23 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@libsql/client@0.6.0:
-    resolution: {integrity: sha512-qhQzTG/y2IEVbL3+9PULDvlQFWJ/RnjFXECr/Nc3nRngGiiMysDaOV5VUzYk7DulUX98EA4wi+z3FspKrUplUA==}
+  /@libsql/client@0.7.0:
+    resolution: {integrity: sha512-1aLDtWzsErr68GZ640TVyOLkL/+lB2YK8cYvJIfiI7Mt+DEPB22Jkoz2QfBDg5PVGX/efeRHog2j/oVbUhxO8Q==}
     dependencies:
-      '@libsql/core': 0.6.0
+      '@libsql/core': 0.7.0
       '@libsql/hrana-client': 0.6.0
       js-base64: 3.7.7
       libsql: 0.3.10
+      promise-limit: 2.7.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
-    dev: false
-
-  /@libsql/core@0.6.0:
-    resolution: {integrity: sha512-affAB8vSqQwqI9NBDJ5uJCVaHoOAS2pOpbv1kWConh1SBbmJBnHHd4KG73RAJ2sgd2+NbT9WA+XJBqxgp28YSw==}
-    dependencies:
-      js-base64: 3.7.7
     dev: false
 
   /@libsql/core@0.7.0:
     resolution: {integrity: sha512-hCYfXa0S4t9CJtxZIWacboylrcx94ZQO0dEngH4f0f/LHg6ymHSZiubbojAwD7tNy94ahICoGPjEi6aEIyhlcQ==}
     dependencies:
       js-base64: 3.7.7
-    dev: true
 
   /@libsql/darwin-arm64@0.3.10:
     resolution: {integrity: sha512-RaexEFfPAFogd6dJlqkpCkTxdr6K14Z0286lodIJ8Ny77mWuWyBkWKxf70OYWXXAMxMJFUW+6al1F3/Osf/pTg==}
@@ -2508,6 +2502,10 @@ packages:
   /process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
     dev: true
+
+  /promise-limit@2.7.0:
+    resolution: {integrity: sha512-7nJ6v5lnJsXwGprnGXga4wx6d1POjvi5Qmf1ivTRxTjH4Z/9Czja/UCMLVmB9N93GeWOU93XaFaEt6jbuoagNw==}
+    dev: false
 
   /proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
