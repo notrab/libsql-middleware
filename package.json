@@ -22,13 +22,13 @@
     "semantic-release": "semantic-release"
   },
   "devDependencies": {
-    "@libsql/core": "0.6.0",
-    "@types/node": "^20.10.5",
-    "semantic-release": "23.0.0",
-    "tsup": "^8.0.1",
-    "typescript": "^5.3.2",
-    "vite": "^5.2.8",
-    "vitest": "^1.0.4"
+    "@libsql/core": "0.7.0",
+    "@types/node": "^20.14.10",
+    "semantic-release": "24.0.0",
+    "tsup": "^8.1.0",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3",
+    "vitest": "^2.0.1"
   },
   "peerDependencies": {
     "@libsql/client": "^0.6.0"

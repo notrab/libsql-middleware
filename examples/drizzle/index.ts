@@ -5,9 +5,9 @@ import {
   beforeExecute,
 } from "libsql-client-hooks";
 import { drizzle } from "drizzle-orm/libsql";
+import { sql } from "drizzle-orm";
 
 import * as schema from "./schema";
-import { sql, SQL } from "drizzle-orm";
 
 const client = createClient({ url: "file:dev.db" });
 
@@ -16,8 +16,9 @@ const logBeforeQuery = beforeExecute(async (query) => {
   return query;
 });
 
-const logAfterQuery = afterExecute(async (result) => {
+const logAfterQuery = afterExecute(async (result, query) => {
   console.log("After executing:", result);
+  console.log("After executing query:", query);
   return result;
 });
 
