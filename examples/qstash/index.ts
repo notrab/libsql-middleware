@@ -8,11 +8,13 @@ const qstash = new Client({
   token: process.env.QSTASH_TOKEN!,
 });
 
-const sendToQueueForProcessing: LibSQLPlugin = {
+const createChildDatabase: LibSQLPlugin = {
   afterExecute: async (result, query) => {
     console.log("After executing");
 
-    const res = await qstash.publishJSON({
+    // Check if `query` is `INSERT INTO users`
+
+    await qstash.publishJSON({
       url: process.env.TARGET_URL!,
       body: {
         query,
@@ -20,15 +22,11 @@ const sendToQueueForProcessing: LibSQLPlugin = {
       },
     });
 
-    console.log(res);
-
     return result;
   },
 };
 
-const enhancedClient = withLibsqlHooks(libsqlClient, [
-  sendToQueueForProcessing,
-]);
+const enhancedClient = withLibsqlHooks(libsqlClient, [createChildDatabase]);
 
 await enhancedClient.execute(
   "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"

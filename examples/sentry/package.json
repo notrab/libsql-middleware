@@ -1,0 +1,21 @@
+{
+  "name": "sentry",
+  "private": true,
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.6.0",
+    "@sentry/node": "^8.11.0",
+    "@sentry/profiling-node": "^8.11.0",
+    "libsql-client-hooks": "latest"
+  },
+  "scripts": {
+    "start": "bun run index.ts"
+  }
+}
