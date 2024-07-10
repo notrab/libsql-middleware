@@ -1,5 +1,5 @@
-import { createClient } from "@libsql/client";
-import { withLibsqlHooks, LibSQLPlugin } from "libsql-client-hooks";
+import { createClient, LibsqlError } from "@libsql/client";
+import { withLibsqlHooks, executeInterceptor } from "libsql-client-hooks";
 import * as Sentry from "@sentry/node";
 import { getStatementType } from "sqlite-statement-type";
 
@@ -11,33 +11,44 @@ Sentry.init({
 
 const libsqlClient = createClient({ url: "file:dev.db" });
 
-function createSentryPlugin(): LibSQLPlugin {
-  let currentSpan: Sentry.Span | undefined;
+const sentryPlugin = executeInterceptor(async (next, query) => {
+  const sql = typeof query === "string" ? query : query.sql;
+  const statementType = getStatementType(sql);
 
-  return {
-    beforeExecute: (query) => {
-      const sql = typeof query === "string" ? query : query.sql;
-      const statementType = getStatementType(sql);
-
-      return Sentry.startSpanManual(
-        {
-          op: `db.${statementType}`,
-          name: sql,
-        },
-        (span) => {
-          currentSpan = span;
-
-          return query;
-        }
-      );
+  return Sentry.startSpan(
+    {
+      op: `db.${statementType}`,
+      name: sql,
+      attributes: {
+        "db.system": "libsql",
+        "db.operation": `${statementType}`,
+      },
     },
-    afterExecute: (result, query) => {
-      const sql = typeof query === "string" ? query : query.sql;
+    async (span) => {
+      try {
+        const result = await next(query);
 
-      if (currentSpan) {
-        if (result instanceof Error) {
-          currentSpan.setStatus({ code: 2 });
-          Sentry.captureException(result, {
+        if (span) {
+          span.setStatus({ code: 1 });
+          if (result) {
+            span.setAttribute("db.rows_affected", result.rowsAffected);
+            span.setAttribute(
+              "db.last_insert_rowid",
+              result.lastInsertRowid?.toString()
+            );
+          }
+        }
+
+        return result;
+      } catch (error: unknown) {
+        if (span) {
+          span.setStatus({ code: 2 });
+        }
+
+        if (error instanceof LibsqlError) {
+          Sentry.captureException(error);
+        } else if (error instanceof Error) {
+          Sentry.captureException(error, {
             contexts: {
               libsql: {
                 query: sql,
@@ -45,22 +56,21 @@ function createSentryPlugin(): LibSQLPlugin {
             },
           });
         } else {
-          currentSpan.setStatus({ code: 1 });
-          if (result) {
-            currentSpan.setAttribute("db.rows_affected", result.rowsAffected);
-          }
+          Sentry.captureMessage("Unknown error in LibSQL query", {
+            level: "error",
+            contexts: {
+              libsql: {
+                query: sql,
+              },
+            },
+          });
         }
 
-        currentSpan.end();
-        currentSpan = undefined;
+        throw error;
       }
-
-      return result;
-    },
-  };
-}
-
-const sentryPlugin = createSentryPlugin();
+    }
+  );
+});
 
 const clientWithSentry = withLibsqlHooks(libsqlClient, [sentryPlugin]);
 
