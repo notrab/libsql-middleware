@@ -12,8 +12,8 @@
   "dependencies": {
     "@libsql/client": "^0.6.0",
     "@sentry/node": "^8.11.0",
-    "@sentry/profiling-node": "^8.11.0",
-    "libsql-client-hooks": "latest"
+    "libsql-client-hooks": "latest",
+    "sqlite-statement-type": "^1.1.0"
   },
   "scripts": {
     "start": "bun run index.ts"

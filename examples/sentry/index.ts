@@ -1,32 +1,71 @@
 import { createClient } from "@libsql/client";
-import { withLibsqlHooks, beforeExecute } from "libsql-client-hooks";
+import { withLibsqlHooks, LibSQLPlugin } from "libsql-client-hooks";
 import * as Sentry from "@sentry/node";
+import { getStatementType } from "sqlite-statement-type";
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  dsn: "...",
   tracesSampleRate: 1.0,
   profilesSampleRate: 1.0,
 });
 
 const libsqlClient = createClient({ url: "file:dev.db" });
 
-const startSpan = beforeExecute((query) =>
-  Sentry.startSpan(
-    {
-      op: "query",
-      name: "Database Query Execution",
-      attributes: {},
+function createSentryPlugin(): LibSQLPlugin {
+  let currentSpan: Sentry.Span | undefined;
+
+  return {
+    beforeExecute: (query) => {
+      const sql = typeof query === "string" ? query : query.sql;
+      const statementType = getStatementType(sql);
+
+      return Sentry.startSpanManual(
+        {
+          op: `db.${statementType}`,
+          name: sql,
+        },
+        (span) => {
+          currentSpan = span;
+
+          return query;
+        }
+      );
     },
-    () => {
-      return query;
-    }
-  )
-);
+    afterExecute: (result, query) => {
+      const sql = typeof query === "string" ? query : query.sql;
 
-const enhancedClient = withLibsqlHooks(libsqlClient, [startSpan]);
+      if (currentSpan) {
+        if (result instanceof Error) {
+          currentSpan.setStatus({ code: 2 });
+          Sentry.captureException(result, {
+            contexts: {
+              libsql: {
+                query: sql,
+              },
+            },
+          });
+        } else {
+          currentSpan.setStatus({ code: 1 });
+          if (result) {
+            currentSpan.setAttribute("db.rows_affected", result.rowsAffected);
+          }
+        }
 
-await enhancedClient.execute(
+        currentSpan.end();
+        currentSpan = undefined;
+      }
+
+      return result;
+    },
+  };
+}
+
+const sentryPlugin = createSentryPlugin();
+
+const clientWithSentry = withLibsqlHooks(libsqlClient, [sentryPlugin]);
+
+await clientWithSentry.execute(
   "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"
 );
-await enhancedClient.execute("INSERT INTO users (name) VALUES ('Test User')");
-await enhancedClient.execute("SELECT * FROM users");
+await clientWithSentry.execute("INSERT INTO users (name) VALUES ('Test User')");
+await clientWithSentry.execute("SELECT * FROM users");
