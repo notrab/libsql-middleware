@@ -8,6 +8,7 @@ import {
   beforeExecute,
   afterExecute,
   beforeBatch,
+  executeInterceptor,
 } from ".";
 
 vi.mock("@libsql/client", () => {
@@ -249,4 +250,101 @@ test("should execute beforeBatch hook for batch commands", async () => {
       });
     }
   });
+});
+
+test("executeInterceptor should intercept and modify query execution", async () => {
+  const client = createClient({ url: "libsql://test-db" });
+
+  const interceptorPlugin = executeInterceptor(async (next, query, client) => {
+    console.log(`Intercepted query: ${query}`);
+    const modifiedQuery =
+      typeof query === "string"
+        ? query.toLowerCase()
+        : { ...query, sql: query.sql.toLowerCase() };
+    const result = await next(modifiedQuery);
+    console.log("Query executed successfully");
+    return result;
+  });
+
+  const clientWithHooks = withLibsqlHooks(client, [interceptorPlugin]);
+
+  const query = "SELECT * FROM USERS";
+  const result = await clientWithHooks.execute(query);
+
+  expect(console.log).toHaveBeenCalledWith(
+    "Intercepted query: SELECT * FROM USERS"
+  );
+  expect(console.log).toHaveBeenCalledWith("Query executed successfully");
+  expect(result.rows).toEqual([{ id: 1, name: "Test User" }]);
+});
+
+test("executeInterceptor should allow multiple interceptors", async () => {
+  const client = createClient({ url: "libsql://test-db" });
+
+  const interceptor1 = executeInterceptor(async (next, query) => {
+    console.log("Interceptor 1: Before execution");
+    const result = await next(query);
+    console.log("Interceptor 1: After execution");
+    return result;
+  });
+
+  const interceptor2 = executeInterceptor(async (next, query) => {
+    console.log("Interceptor 2: Before execution");
+    const result = await next(query);
+    console.log("Interceptor 2: After execution");
+    return result;
+  });
+
+  const clientWithHooks = withLibsqlHooks(client, [interceptor1, interceptor2]);
+
+  const query = "SELECT * FROM users";
+  await clientWithHooks.execute(query);
+
+  expect(console.log).toHaveBeenCalledWith("Interceptor 1: Before execution");
+  expect(console.log).toHaveBeenCalledWith("Interceptor 2: Before execution");
+  expect(console.log).toHaveBeenCalledWith("Interceptor 2: After execution");
+  expect(console.log).toHaveBeenCalledWith("Interceptor 1: After execution");
+});
+
+test("executeInterceptor should work alongside beforeExecute and afterExecute", async () => {
+  const client = createClient({ url: "libsql://test-db" });
+
+  const beforeExecutePlugin: LibSQLPlugin = {
+    beforeExecute: (query) => {
+      console.log("beforeExecute called");
+      return query;
+    },
+  };
+
+  const interceptorPlugin = executeInterceptor(async (next, query, client) => {
+    console.log("executeInterceptor: Before execution");
+    const result = await next(query);
+    console.log("executeInterceptor: After execution");
+    return result;
+  });
+
+  const afterExecutePlugin: LibSQLPlugin = {
+    afterExecute: (result, query) => {
+      console.log("afterExecute called");
+      return result;
+    },
+  };
+
+  const clientWithHooks = withLibsqlHooks(client, [
+    beforeExecutePlugin,
+    interceptorPlugin,
+    afterExecutePlugin,
+  ]);
+
+  const query = "SELECT * FROM users";
+  await clientWithHooks.execute(query);
+
+  expect(console.log).toHaveBeenCalledWith("beforeExecute called");
+  expect(console.log).toHaveBeenCalledWith(
+    "executeInterceptor: Before execution"
+  );
+  expect(console.log).toHaveBeenCalledWith(
+    "executeInterceptor: After execution"
+  );
+  expect(console.log).toHaveBeenCalledWith("afterExecute called");
 });

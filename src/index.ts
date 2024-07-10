@@ -19,6 +19,11 @@ export interface LibSQLPlugin {
     stmts: InStatement[],
     client: Client
   ) => Promise<ResultSet[]> | ResultSet[];
+  executeInterceptor?: (
+    next: (query: InStatement) => Promise<ResultSet>,
+    query: InStatement,
+    client: Client
+  ) => Promise<ResultSet>;
 }
 
 export function withLibsqlHooks(
@@ -37,21 +42,24 @@ export function withLibsqlHooks(
       }
     }
 
-    const result = await originalExecute(modifiedStmt);
-
-    let modifiedResult = result;
-
-    for (const plugin of plugins) {
-      if (plugin.afterExecute) {
-        modifiedResult = await plugin.afterExecute(
-          modifiedResult,
-          modifiedStmt,
-          client
-        );
+    let executeChain = originalExecute;
+    for (const plugin of plugins.slice().reverse()) {
+      if (plugin.executeInterceptor) {
+        const prevExecute = executeChain;
+        executeChain = (query) =>
+          plugin.executeInterceptor!(prevExecute, query, client);
       }
     }
 
-    return modifiedResult;
+    let result = await executeChain(modifiedStmt);
+
+    for (const plugin of plugins) {
+      if (plugin.afterExecute) {
+        result = await plugin.afterExecute(result, modifiedStmt, client);
+      }
+    }
+
+    return result;
   };
 
   client.batch = async (stmts: InStatement[]): Promise<ResultSet[]> => {
@@ -113,4 +121,14 @@ export function afterBatch(
   ) => Promise<ResultSet[]> | ResultSet[]
 ): LibSQLPlugin {
   return { afterBatch: handler };
+}
+
+export function executeInterceptor(
+  handler: (
+    next: (query: InStatement) => Promise<ResultSet>,
+    query: InStatement,
+    client: Client
+  ) => Promise<ResultSet>
+): LibSQLPlugin {
+  return { executeInterceptor: handler };
 }
