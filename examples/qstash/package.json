@@ -1,5 +1,4 @@
 {
-  "name": "qstash",
   "private": true,
   "module": "index.ts",
   "type": "module",
@@ -12,7 +11,7 @@
   "dependencies": {
     "@libsql/client": "^0.6.0",
     "@upstash/qstash": "^2.4.3",
-    "libsql-client-hooks": "latest"
+    "libsql-middleware": "workspace:*"
   },
   "scripts": {
     "start": "bun run index.ts"

@@ -1,5 +1,5 @@
 {
-  "name": "libsql-stateless-easy-example",
+  "private": true,
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
@@ -9,7 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "libsql-client-hooks": "^1.1.0",
+    "libsql-middleware": "workspace:*",
     "libsql-stateless-easy": "^1.5.6"
   }
 }

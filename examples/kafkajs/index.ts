@@ -1,5 +1,5 @@
 import { createClient } from "@libsql/client";
-import { withLibsqlHooks, afterExecute } from "libsql-client-hooks";
+import { withMiddleware, afterExecute } from "libsql-middleware";
 import ip from "ip";
 import { Kafka, logLevel } from "kafkajs";
 
@@ -32,7 +32,7 @@ const sendToKafka = afterExecute(async (result, query) => {
   return result;
 });
 
-const enhancedClient = withLibsqlHooks(client, [sendToKafka]);
+const enhancedClient = withMiddleware(client, [sendToKafka]);
 
 await enhancedClient.execute(
   "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"

@@ -1,15 +1,16 @@
 {
-  "name": "libsql-client-hooks",
+  "name": "libsql-middleware",
   "description": "Before and after execute hooks for libSQL.",
   "version": "0.0.0-development",
   "license": "MIT",
-  "repository": "notrab/libsql-client-hooks",
+  "repository": "notrab/libsql-middleware",
   "keywords": [
     "turso",
     "tursodatabase",
     "sqlite",
     "libsql",
-    "hooks"
+    "hooks",
+    "middleware"
   ],
   "contributors": [
     "Jamie Barton <jamie@notrab.dev>"
@@ -23,12 +24,12 @@
   },
   "devDependencies": {
     "@libsql/core": "0.7.0",
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.14.13",
     "semantic-release": "24.0.0",
-    "tsup": "^8.1.0",
-    "typescript": "^5.5.3",
-    "vite": "^5.3.3",
-    "vitest": "^2.0.1"
+    "tsup": "^8.2.3",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5",
+    "vitest": "^2.0.4"
   },
   "peerDependencies": {
     "@libsql/client": "^0.7.0"

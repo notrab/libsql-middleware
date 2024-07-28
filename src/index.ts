@@ -26,7 +26,7 @@ export interface LibSQLPlugin {
   ) => Promise<ResultSet>;
 }
 
-export function withLibsqlHooks(
+export function withMiddleware(
   client: Client,
   plugins: LibSQLPlugin[]
 ): Client {

@@ -1,9 +1,5 @@
 import { createClient } from "@libsql/client";
-import {
-  withLibsqlHooks,
-  afterExecute,
-  beforeExecute,
-} from "libsql-client-hooks";
+import { withMiddleware, afterExecute, beforeExecute } from "libsql-middleware";
 import { drizzle } from "drizzle-orm/libsql";
 import { sql } from "drizzle-orm";
 
@@ -22,7 +18,7 @@ const logAfterQuery = afterExecute(async (result, query) => {
   return result;
 });
 
-const enhancedClient = withLibsqlHooks(client, [logBeforeQuery, logAfterQuery]);
+const enhancedClient = withMiddleware(client, [logBeforeQuery, logAfterQuery]);
 
 const db = drizzle(enhancedClient, {
   schema,

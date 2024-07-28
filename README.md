@@ -1,13 +1,13 @@
-# libsql-client-hooks
+# libsql-middleware
 
 The middleware wrapper for `@libsql/client`.
 
-![NPM](https://img.shields.io/npm/v/libsql-client-hooks)
+![NPM](https://img.shields.io/npm/v/libsql-middleware)
 
 ## Install
 
 ```bash
-npm install libsql-client-hooks
+npm install libsql-middleware
 ```
 
 Make sure to install `@libsql/client` if you don't already have it.
@@ -16,7 +16,7 @@ Make sure to install `@libsql/client` if you don't already have it.
 
 ```ts
 import { createClient } from "@libsql/client";
-import { beforeExecute, withLibsqlHooks } from "libsql-client-hooks";
+import { beforeExecute, withMiddleware } from "libsql-middleware";
 
 const client = createClient({ url: "file:dev.db" });
 
@@ -25,7 +25,7 @@ const logBeforeExecute = beforeExecute((query) => {
   return query;
 });
 
-const clientWithHooks = withLibsqlHooks(client, [logBeforeExecute]);
+const clientWithHooks = withMiddleware(client, [logBeforeExecute]);
 
 await clientWithHooks.execute(
   "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"
@@ -39,7 +39,7 @@ await clientWithHooks.execute("SELECT * FROM users");
 ### `beforeExecute`
 
 ```ts
-import { beforeExecute } from "libsql-client-hooks";
+import { beforeExecute } from "libsql-middleware";
 
 const logBeforeExecute = beforeExecute((query) => {
   // Do something
@@ -50,7 +50,7 @@ const logBeforeExecute = beforeExecute((query) => {
 ### `afterExecute`
 
 ```ts
-import { afterExecute } from "libsql-client-hooks";
+import { afterExecute } from "libsql-middleware";
 
 const logAfterExecute = afterExecute((result, query) => {
   // Do something
@@ -61,7 +61,7 @@ const logAfterExecute = afterExecute((result, query) => {
 ### `beforeBatch`
 
 ```ts
-import { beforeBatch } from "libsql-client-hooks";
+import { beforeBatch } from "libsql-middleware";
 
 const logBeforeBatch = beforeBatch((stmts) => {
   // Do something
@@ -72,7 +72,7 @@ const logBeforeBatch = beforeBatch((stmts) => {
 ### `afterBatch`
 
 ```ts
-import { afterBatch } from "libsql-client-hooks";
+import { afterBatch } from "libsql-middleware";
 
 const logAfterBatch = afterBatch((results, stmts) => {
   // Do something
@@ -80,14 +80,14 @@ const logAfterBatch = afterBatch((results, stmts) => {
 });
 ```
 
-### `withLibsqlHooks`
+### `withMiddleware`
 
-The `withLibsqlHooks` method binds the original `@libsql/client` methods so you can use them as you normally would, but now with middleware.
+The `withMiddleware` method binds the original `@libsql/client` methods so you can use them as you normally would, but now with middleware.
 
 ```ts
-import { withLibsqlHooks } from "libsql-client-hooks";
+import { withMiddleware } from "libsql-middleware";
 
-const clientWithHooks = withLibsqlHooks(client, [
+const clientWithHooks = withMiddleware(client, [
   // Your plugins
 ]);
 

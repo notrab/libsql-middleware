@@ -1,5 +1,5 @@
 {
-  "name": "drizzle",
+  "private": true,
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "drizzle-orm": "^0.31.4",
-    "libsql-client-hooks": "^1.2.0"
+    "libsql-middleware": "workspace:*"
   },
   "scripts": {
     "generate": "drizzle-kit generate",

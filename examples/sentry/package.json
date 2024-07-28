@@ -1,5 +1,4 @@
 {
-  "name": "sentry",
   "private": true,
   "module": "index.ts",
   "type": "module",
@@ -12,7 +11,7 @@
   "dependencies": {
     "@libsql/client": "^0.6.0",
     "@sentry/node": "^8.11.0",
-    "libsql-client-hooks": "1.3.0",
+    "libsql-middleware": "workspace:*",
     "sqlite-statement-type": "^1.1.0"
   },
   "scripts": {

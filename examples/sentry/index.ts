@@ -1,5 +1,5 @@
 import { createClient, LibsqlError } from "@libsql/client";
-import { withLibsqlHooks, executeInterceptor } from "libsql-client-hooks";
+import { withMiddleware, executeInterceptor } from "libsql-middleware";
 import * as Sentry from "@sentry/node";
 import { getStatementType } from "sqlite-statement-type";
 
@@ -72,7 +72,7 @@ const sentryPlugin = executeInterceptor(async (next, query) => {
   );
 });
 
-const clientWithSentry = withLibsqlHooks(libsqlClient, [sentryPlugin]);
+const clientWithSentry = withMiddleware(libsqlClient, [sentryPlugin]);
 
 await clientWithSentry.execute(
   "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"

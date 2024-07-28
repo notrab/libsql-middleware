@@ -4,7 +4,7 @@ import { performance } from "perf_hooks";
 
 import {
   LibSQLPlugin,
-  withLibsqlHooks,
+  withMiddleware,
   beforeExecute,
   afterExecute,
   beforeBatch,
@@ -48,7 +48,7 @@ test("should execute plugins before and after query execution", async () => {
     afterExecute: afterExecuteMock,
   };
 
-  const clientWithHooks = withLibsqlHooks(client, [myPlugin]);
+  const clientWithHooks = withMiddleware(client, [myPlugin]);
 
   const query = "SELECT * FROM users";
   const result = await clientWithHooks.execute(query);
@@ -78,7 +78,7 @@ test("should log before and after executing a query", async () => {
     },
   };
 
-  const enhancedClient = withLibsqlHooks(client, [
+  const enhancedClient = withMiddleware(client, [
     logBeforePlugin,
     logAfterPlugin,
   ]);
@@ -109,7 +109,7 @@ test("afterExecute plugin returns result and query in that order", async () => {
     },
   };
 
-  const clientWithHooks = withLibsqlHooks(client, [myPlugin]);
+  const clientWithHooks = withMiddleware(client, [myPlugin]);
 
   const query = "SELECT * FROM users";
   const result = await clientWithHooks.execute(query);
@@ -130,7 +130,7 @@ test("beforeExecute and afterExecute plugins work correctly", async () => {
     return result;
   });
 
-  const clientWithHooks = withLibsqlHooks(client, [beforePlugin, afterPlugin]);
+  const clientWithHooks = withMiddleware(client, [beforePlugin, afterPlugin]);
 
   const query = "SELECT * FROM users";
 
@@ -168,7 +168,7 @@ test("Benchmark operations and plugins", async ({ expect }) => {
     },
   };
 
-  const enhancedClient = withLibsqlHooks(client, [
+  const enhancedClient = withMiddleware(client, [
     logBeforePlugin,
     logAfterPlugin,
   ]);
@@ -204,7 +204,7 @@ test("Before hook checks if the query is an INSERT for the users table", async (
     return result;
   });
 
-  const clientWithHooks = withLibsqlHooks(client, [afterPlugin]);
+  const clientWithHooks = withMiddleware(client, [afterPlugin]);
 
   const insertQuery = "INSERT INTO users (name, age) VALUES ('John Doe', 30)";
   await clientWithHooks.execute(insertQuery);
@@ -231,7 +231,7 @@ test("should execute beforeBatch hook for batch commands", async () => {
   });
 
   const client = createClient({ url: "libsql://test-db" });
-  const clientWithHooks = await withLibsqlHooks(client, [beforeBatchPlugin]);
+  const clientWithHooks = await withMiddleware(client, [beforeBatchPlugin]);
 
   const stmts = [
     { sql: "SELECT * FROM table1", args: {} },
@@ -266,7 +266,7 @@ test("executeInterceptor should intercept and modify query execution", async () 
     return result;
   });
 
-  const clientWithHooks = withLibsqlHooks(client, [interceptorPlugin]);
+  const clientWithHooks = withMiddleware(client, [interceptorPlugin]);
 
   const query = "SELECT * FROM USERS";
   const result = await clientWithHooks.execute(query);
@@ -295,7 +295,7 @@ test("executeInterceptor should allow multiple interceptors", async () => {
     return result;
   });
 
-  const clientWithHooks = withLibsqlHooks(client, [interceptor1, interceptor2]);
+  const clientWithHooks = withMiddleware(client, [interceptor1, interceptor2]);
 
   const query = "SELECT * FROM users";
   await clientWithHooks.execute(query);
@@ -330,7 +330,7 @@ test("executeInterceptor should work alongside beforeExecute and afterExecute", 
     },
   };
 
-  const clientWithHooks = withLibsqlHooks(client, [
+  const clientWithHooks = withMiddleware(client, [
     beforeExecutePlugin,
     interceptorPlugin,
     afterExecutePlugin,

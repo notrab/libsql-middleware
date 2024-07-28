@@ -1,9 +1,5 @@
 import { createClient } from "libsql-stateless-easy";
-import {
-  beforeExecute,
-  afterExecute,
-  withLibsqlHooks,
-} from "libsql-client-hooks";
+import { beforeExecute, afterExecute, withMiddleware } from "libsql-middleware";
 
 const client = createClient({
   url: process.env.LIBSQL_URL!,
@@ -22,7 +18,7 @@ const logAfterQuery = afterExecute(async (result) => {
   return result;
 });
 
-const enhancedClient = withLibsqlHooks(client, [logBeforeQuery, logAfterQuery]);
+const enhancedClient = withMiddleware(client, [logBeforeQuery, logAfterQuery]);
 
 await enhancedClient.execute(
   "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"

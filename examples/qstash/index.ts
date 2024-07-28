@@ -1,6 +1,6 @@
 import { Client } from "@upstash/qstash";
 import { createClient } from "@libsql/client";
-import { type LibSQLPlugin, withLibsqlHooks } from "libsql-client-hooks";
+import { type LibSQLPlugin, withMiddleware } from "libsql-middleware";
 
 const libsqlClient = createClient({ url: "file:dev.db" });
 
@@ -26,7 +26,7 @@ const createChildDatabase: LibSQLPlugin = {
   },
 };
 
-const enhancedClient = withLibsqlHooks(libsqlClient, [createChildDatabase]);
+const enhancedClient = withMiddleware(libsqlClient, [createChildDatabase]);
 
 await enhancedClient.execute(
   "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"

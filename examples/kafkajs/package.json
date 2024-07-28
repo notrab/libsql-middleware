@@ -13,6 +13,6 @@
     "@libsql/client": "^0.6.0",
     "ip": "^2.0.1",
     "kafkajs": "^2.2.4",
-    "libsql-client-hooks": "^1.1.0"
+    "libsql-middleware": "workspace:*"
   }
 }
