@@ -13,8 +13,8 @@ importers:
         version: 0.7.0
     devDependencies:
       '@libsql/core':
-        specifier: 0.7.0
-        version: 0.7.0
+        specifier: 0.9.0
+        version: 0.9.0
       '@types/node':
         specifier: ^20.14.13
         version: 20.14.13
@@ -1094,6 +1094,13 @@ packages:
     resolution: {integrity: sha512-hCYfXa0S4t9CJtxZIWacboylrcx94ZQO0dEngH4f0f/LHg6ymHSZiubbojAwD7tNy94ahICoGPjEi6aEIyhlcQ==}
     dependencies:
       js-base64: 3.7.7
+    dev: false
+
+  /@libsql/core@0.9.0:
+    resolution: {integrity: sha512-rCsS/EC32K8ARjDQJGqauGZmkR6orOOY4I7898PyQ/mmltAkMwRgz5kjEmYRZ42o7mP0ayJfbw28qgv7SRFEgg==}
+    dependencies:
+      js-base64: 3.7.7
+    dev: true
 
   /@libsql/darwin-arm64@0.3.19:
     resolution: {integrity: sha512-rmOqsLcDI65zzxlUOoEiPJLhqmbFsZF6p4UJQ2kMqB+Kc0Rt5/A1OAdOZ/Wo8fQfJWjR1IbkbpEINFioyKf+nQ==}
