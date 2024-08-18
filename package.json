@@ -24,12 +24,12 @@
   },
   "devDependencies": {
     "@libsql/core": "0.9.0",
-    "@types/node": "^20.14.13",
-    "semantic-release": "24.0.0",
-    "tsup": "^8.2.3",
+    "@types/node": "^22.4.0",
+    "semantic-release": "24.1.0",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4",
-    "vite": "^5.3.5",
-    "vitest": "^2.0.4"
+    "vite": "^5.4.1",
+    "vitest": "^2.0.5"
   },
   "peerDependencies": {
     "@libsql/client": "^0.7.0"
