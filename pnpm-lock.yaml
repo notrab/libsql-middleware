@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@libsql/client':
-        specifier: ^0.7.0
+        specifier: ^0.7.0 || ^0.9.0
         version: 0.7.0
     devDependencies:
       '@libsql/core':
