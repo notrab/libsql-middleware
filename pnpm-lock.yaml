@@ -13,8 +13,8 @@ importers:
         version: 0.7.0
     devDependencies:
       '@libsql/core':
-        specifier: 0.9.0
-        version: 0.9.0
+        specifier: 0.12.0
+        version: 0.12.0
       '@types/node':
         specifier: ^22.4.0
         version: 22.4.0
@@ -1084,6 +1084,12 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@libsql/core@0.12.0:
+    resolution: {integrity: sha512-PZJF4qvPbDWZfXk0Tr+O5xaMhFoetA1gIVPgYLH6Bc6gAeyYxhGw268p+95SkADZDjB5CYPcVLvfQEjSVeR3Zw==}
+    dependencies:
+      js-base64: 3.7.7
+    dev: true
+
   /@libsql/core@0.6.2:
     resolution: {integrity: sha512-c2P4M+4u/4b2L02A0KjggO3UW51rGkhxr/7fzJO0fEAqsqrWGxuNj2YtRkina/oxfYvAof6xjp8RucNoIV/Odw==}
     dependencies:
@@ -1095,12 +1101,6 @@ packages:
     dependencies:
       js-base64: 3.7.7
     dev: false
-
-  /@libsql/core@0.9.0:
-    resolution: {integrity: sha512-rCsS/EC32K8ARjDQJGqauGZmkR6orOOY4I7898PyQ/mmltAkMwRgz5kjEmYRZ42o7mP0ayJfbw28qgv7SRFEgg==}
-    dependencies:
-      js-base64: 3.7.7
-    dev: true
 
   /@libsql/darwin-arm64@0.3.19:
     resolution: {integrity: sha512-rmOqsLcDI65zzxlUOoEiPJLhqmbFsZF6p4UJQ2kMqB+Kc0Rt5/A1OAdOZ/Wo8fQfJWjR1IbkbpEINFioyKf+nQ==}
