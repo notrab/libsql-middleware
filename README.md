@@ -2,6 +2,7 @@
 
 The middleware wrapper for `@libsql/client`.
 
+[![Hypercommit](https://img.shields.io/badge/Hypercommit-DB2475)](https://hypercommit.com/libsql-middleware)
 ![NPM](https://img.shields.io/npm/v/libsql-middleware)
 
 ## Install
