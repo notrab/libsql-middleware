@@ -13,8 +13,8 @@ importers:
         version: 0.7.0
     devDependencies:
       '@libsql/core':
-        specifier: 0.12.0
-        version: 0.12.0
+        specifier: 0.18.0
+        version: 0.18.0
       '@types/node':
         specifier: ^22.4.0
         version: 22.4.0
@@ -1084,8 +1084,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@libsql/core@0.12.0:
-    resolution: {integrity: sha512-PZJF4qvPbDWZfXk0Tr+O5xaMhFoetA1gIVPgYLH6Bc6gAeyYxhGw268p+95SkADZDjB5CYPcVLvfQEjSVeR3Zw==}
+  /@libsql/core@0.18.0:
+    resolution: {integrity: sha512-N8RR2CIpcgtbKZnXs2KVpw2lJQfinUj3I56e7qRDRpK18Hty0Rr8nr00VmFb4R/DsqOanPB/TaP3+QAQLZeXMg==}
     dependencies:
       js-base64: 3.7.7
     dev: true
